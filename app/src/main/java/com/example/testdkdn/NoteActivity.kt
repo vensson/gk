@@ -45,7 +45,7 @@ class NoteActivity : ComponentActivity() {
                     onClick = {
                         startActivity(Intent(this@NoteActivity, NoteEditorActivity::class.java))
                     },
-                    modifier = Modifier.padding(bottom = 64.dp) // Đẩy lên một chút
+                    modifier = Modifier.padding(bottom = 64.dp)
                 ) {
                     Text("+")
                 }
@@ -58,20 +58,17 @@ class NoteActivity : ComponentActivity() {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Tiêu đề
                 Text(
                     text = "Danh sách Ghi Chú",
                     style = MaterialTheme.typography.headlineMedium
                 )
 
-                // Danh sách ghi chú
                 LazyColumn(
-                    modifier = Modifier.weight(1f) // Để nút đăng xuất luôn ở dưới cùng
+                    modifier = Modifier.weight(1f)
                 ) {
                     items(notes) { note ->
                         NoteItem(note, onSelect = {
                             val intent = Intent(this@NoteActivity, NoteEditorActivity::class.java)
-                            intent.putExtra("noteId", it.id)
                             intent.putExtra("title", it.title)
                             intent.putExtra("description", it.description)
                             startActivity(intent)
@@ -79,7 +76,6 @@ class NoteActivity : ComponentActivity() {
                     }
                 }
 
-                // Nút đăng xuất (ở dưới cùng)
                 Button(
                     onClick = {
                         auth.signOut()
@@ -102,8 +98,9 @@ class NoteActivity : ComponentActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val notesList = mutableListOf<Note>()
                 for (noteSnapshot in snapshot.children) {
-                    val note = noteSnapshot.getValue(Note::class.java)
-                    note?.let { notesList.add(it) }
+                    val title = noteSnapshot.key ?: continue
+                    val description = noteSnapshot.child("description").getValue(String::class.java) ?: ""
+                    notesList.add(Note(title, description))
                 }
                 callback(notesList)
             }
@@ -130,3 +127,4 @@ class NoteActivity : ComponentActivity() {
         }
     }
 }
+

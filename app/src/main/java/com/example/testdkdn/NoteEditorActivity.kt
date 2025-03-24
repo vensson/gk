@@ -19,24 +19,24 @@ class NoteEditorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val noteId = intent.getStringExtra("noteId")
         val initialTitle = intent.getStringExtra("title") ?: ""
         val initialDescription = intent.getStringExtra("description") ?: ""
 
         setContent {
-            NoteEditorScreen(noteId, initialTitle, initialDescription)
+            NoteEditorScreen(initialTitle, initialDescription)
         }
     }
 
     @Composable
-    fun NoteEditorScreen(noteId: String?, titleInitial: String, descriptionInitial: String) {
+    fun NoteEditorScreen(titleInitial: String, descriptionInitial: String) {
         var title by remember { mutableStateOf(titleInitial) }
         var description by remember { mutableStateOf(descriptionInitial) }
 
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = if (noteId == null) "Thêm Ghi Chú" else "Chỉnh Sửa Ghi Chú",
+                text = if (titleInitial.isEmpty()) "Thêm Ghi Chú" else "Chỉnh Sửa Ghi Chú",
                 style = MaterialTheme.typography.headlineMedium
+                , modifier = Modifier.padding(top = 32.dp)
             )
 
             OutlinedTextField(
@@ -59,19 +59,18 @@ class NoteEditorActivity : ComponentActivity() {
 
             Button(
                 onClick = {
-                    if (noteId == null) saveNote(title, description)
-                    else updateNote(noteId, title, description)
+                    saveOrUpdateNote(title, description)
                     finish()
                 }
             ) {
-                Text(if (noteId == null) "Thêm" else "Lưu thay đổi")
+                Text(if (titleInitial.isEmpty()) "Thêm" else "Lưu thay đổi")
             }
 
-            if (noteId != null) {
+            if (titleInitial.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        deleteNote(noteId)
+                        deleteNote(title)
                         finish()
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
@@ -82,32 +81,21 @@ class NoteEditorActivity : ComponentActivity() {
         }
     }
 
-    fun saveNote(title: String, description: String) {
-        val noteId = database.child(userId!!).push().key ?: return
-        val note = Note(noteId, title, description)
-
-        database.child(userId).child(noteId).setValue(note)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Thêm thành công", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Lỗi: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
+    fun saveOrUpdateNote(title: String, description: String) {
+        if (title.isNotBlank()) {
+            val note = mapOf("title" to title, "description" to description)
+            database.child(userId!!).child(title).setValue(note)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Lưu thành công", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Lỗi: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
-    fun updateNote(noteId: String, title: String, description: String) {
-        val updatedNote = Note(noteId, title, description)
-        database.child(userId!!).child(noteId).setValue(updatedNote)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Lỗi: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    fun deleteNote(noteId: String) {
-        database.child(userId!!).child(noteId).removeValue()
+    fun deleteNote(title: String) {
+        database.child(userId!!).child(title).removeValue()
             .addOnSuccessListener {
                 Toast.makeText(this, "Xóa thành công", Toast.LENGTH_SHORT).show()
             }
@@ -116,5 +104,3 @@ class NoteEditorActivity : ComponentActivity() {
             }
     }
 }
-
-
