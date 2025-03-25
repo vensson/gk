@@ -37,6 +37,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -65,6 +66,21 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
+//    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.navigation:navigation-fragment:2.7.7")
+    implementation("androidx.navigation:navigation-ui:2.7.7")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+//    implementation(libs.cloudinary) // Thêm thư viện Cloudinary
+//    implementation(libs.okhttp) // Thêm thư viện OkHttp (nếu chưa có)
+//    implementation("com.cloudinary:kotlin-url-gen:1.7.0")
+//    implementation("com.cloudinary:cloudinary-android:2.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") // Bản mới nhất
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0") // (Tùy chọn) để log request
+    implementation(libs.cloudinary)
+    implementation("io.coil-kt:coil-compose:2.0.0")
 
 }
